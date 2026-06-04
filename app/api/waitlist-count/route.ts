@@ -3,6 +3,10 @@ import { sql } from '@vercel/postgres'
 
 export async function GET() {
   try {
+    if (!process.env.DATABASE_URL) {
+      console.error('Waitlist-count API Error: DATABASE_URL is not set')
+      return NextResponse.json({ error: 'Database not configured. Set DATABASE_URL (Vercel Postgres).' }, { status: 503 })
+    }
     await sql`CREATE TABLE IF NOT EXISTS waitlist (
       id serial PRIMARY KEY,
       email text UNIQUE,

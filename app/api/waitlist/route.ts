@@ -2,10 +2,15 @@ import { NextResponse } from 'next/server'
 import { sql } from '@vercel/postgres'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY || '')
+// NOTE: In Vercel, the Postgres connection is provided via DATABASE_URL by their integration.
+// If DATABASE_URL is missing the handler will return a 503 with guidance.
 
 export async function POST(request: Request) {
   try {
+    if (!process.env.DATABASE_URL) {
+      console.error('Waitlist API Error: DATABASE_URL is not set')
+      return NextResponse.json({ error: 'Database not configured. Set DATABASE_URL (Vercel Postgres).' }, { status: 503 })
+    }
     let email: string | undefined
 
     const contentType = request.headers.get('content-type') || ''
@@ -52,15 +57,20 @@ export async function POST(request: Request) {
 
     // Try to send welcome email, but do not fail the whole request if email sending errors.
     if (inserted) {
-      try {
-        await resend.emails.send({
-          from: 'Rich Money <onboarding@resend.dev>',
-          to: email,
-          subject: 'You are on the waitlist! 🚀',
-          html: `<p>Thanks for joining the Rich Money waitlist — we&rsquo;ll be in touch soon!</p>`,
-        })
-      } catch (sendError: any) {
-        console.error('Waitlist email send error:', sendError)
+      if (!process.env.RESEND_API_KEY) {
+        console.warn('RESEND_API_KEY not set; skipping welcome email send')
+      } else {
+        try {
+          const resend = new Resend(process.env.RESEND_API_KEY)
+          await resend.emails.send({
+            from: 'Rich Money <onboarding@resend.dev>',
+            to: email,
+            subject: 'You are on the waitlist! 🚀',
+            html: `<p>Thanks for joining the Rich Money waitlist — we&rsquo;ll be in touch soon!</p>`,
+          })
+        } catch (sendError: any) {
+          console.error('Waitlist email send error:', sendError)
+        }
       }
     }
 
