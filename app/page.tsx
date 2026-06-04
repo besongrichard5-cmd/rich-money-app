@@ -7,10 +7,12 @@ import { useState } from "react";
 export default function Home() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
+    setErrorMessage("");
 
     try {
       const res = await fetch("/api/waitlist", {
@@ -22,9 +24,12 @@ export default function Home() {
       if (res.ok) {
         setStatus("success");
       } else {
+        const data = await res.json().catch(() => null);
+        setErrorMessage(data?.error || 'Unable to join waitlist.')
         setStatus("error");
       }
     } catch (err) {
+      setErrorMessage('Network error. Please try again.')
       setStatus("error");
     }
   };
@@ -173,7 +178,9 @@ export default function Home() {
                   )}
                 </button>
                 {status === "error" && (
-                  <p className="text-red-500 font-medium mt-1 animate-in fade-in">Oops! Please try again.</p>
+                  <p className="text-red-500 font-medium mt-1 animate-in fade-in">
+                    {errorMessage || 'Oops! Please try again.'}
+                  </p>
                 )}
               </form>
             )}

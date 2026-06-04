@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server'
 import { sql } from '@vercel/postgres'
 import { Resend } from 'resend'
 
-// NOTE: In Vercel, the Postgres connection is provided via DATABASE_URL by their integration.
-// If DATABASE_URL is missing the handler will return a 503 with guidance.
+// Support alternate Postgres environment variable names.
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = process.env.POSTGRES_URL || process.env.VERCEL_POSTGRES_URL || process.env.DATABASE_URL
+}
 
 export async function POST(request: Request) {
   try {
