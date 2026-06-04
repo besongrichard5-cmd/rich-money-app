@@ -26,11 +26,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 })
     }
 
-    await sql`CREATE TABLE IF NOT EXISTS waitlist (
-      id serial PRIMARY KEY,
-      email text UNIQUE,
-      created_at timestamp DEFAULT now()
-    )`
+    // Ensure table exists (best practice: run migrations separately in production)
+    try {
+      await sql`CREATE TABLE IF NOT EXISTS waitlist (
+        id serial PRIMARY KEY,
+        email text UNIQUE,
+        created_at timestamp DEFAULT now()
+      )`
+    } catch (tableErr: any) {
+      console.error('Waitlist table create error:', tableErr)
+      // If creating the table fails due to DB not being available, return a clear error
+      if (tableErr?.name === 'VercelPostgresError' || tableErr?.code) {
+        return NextResponse.json({ error: 'Database unavailable. Check Vercel Postgres provisioning and DATABASE_URL.' }, { status: 503 })
+      }
+    }
 
     const insertResult: any = await sql`
       INSERT INTO waitlist (email)
@@ -57,7 +66,23 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error('Waitlist API Error:', error)
+    // Log extended error information for easier debugging in Vercel logs
+    try {
+      console.error('Waitlist API Error:', {
+        name: error?.name,
+        message: error?.message,
+        code: error?.code,
+        stack: error?.stack,
+      })
+    } catch (logErr) {
+      console.error('Waitlist API Error (logging failed):', error)
+    }
+
+    // If this is a Vercel Postgres error, return a 503 and a helpful message
+    if (error?.name === 'VercelPostgresError' || error?.code) {
+      return NextResponse.json({ error: 'Database unavailable. Check Vercel Postgres provisioning and DATABASE_URL.' }, { status: 503 })
+    }
+
     return NextResponse.json({ error: error?.message ?? 'Internal server error' }, { status: 500 })
   }
 }
