@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import { neon } from '@neondb/serverless';
+import { sql } from '@vercel/postgres';
 import { Resend } from 'resend';
 
-const sql = neon(process.env.DATABASE_URL);
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || '')
 
 export async function POST(request) {
   try {
@@ -15,7 +14,7 @@ export async function POST(request) {
 
     // Check if email exists
     const existing = await sql`SELECT id FROM waitlist WHERE email = ${email}`;
-    if (existing.length > 0) {
+    if ((existing?.rows ?? existing)?.length > 0) {
       return NextResponse.json({ error: 'Email already on waitlist' }, { status: 400 });
     }
 
@@ -25,11 +24,11 @@ export async function POST(request) {
       VALUES (${email}) 
       RETURNING id, created_at
     `;
-    
-    const userId = result[0].id;
+
+    const userId = result?.rows?.[0]?.id
     const position = userId; // Since id is SERIAL, it's the position
     const referralCode = userId.toString(36).toUpperCase();
-    const referralLink = `https://richmoney.vercel.app?ref=${referralCode}`;
+    const referralLink = `https://rich-money-app.vercel.app?ref=${referralCode}`;
 
     // Send branded HTML email
     await resend.emails.send({
