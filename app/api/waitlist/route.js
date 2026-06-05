@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server';
-import { neon } from '@neondb/serverless';
+import { sql } from '@vercel/postgres';
 import { Resend } from 'resend';
 
-const sql = neon(process.env.DATABASE_URL);
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = process.env.EMAIL_FROM || 'no-reply@richmoney.app';
 const FROM_NAME = process.env.EMAIL_FROM_NAME || 'Rich Money';
 
 export async function GET() {
   try {
-    const result = await sql`SELECT COUNT(*)::int AS count FROM waitlist`;
-    const count = result?.[0]?.count ?? 0;
+    const { rows } = await sql`SELECT COUNT(*)::int AS count FROM waitlist`;
+    const count = rows?.[0]?.count ?? 0;
     return NextResponse.json({ count });
   } catch (error) {
     console.error('Count API error:', error);
@@ -27,18 +26,18 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Valid email required' }, { status: 400 });
     }
 
-    const existing = await sql`SELECT id FROM waitlist WHERE email = ${email}`;
+    const { rows: existing } = await sql`SELECT id FROM waitlist WHERE email = ${email}`;
     if (existing.length > 0) {
       return NextResponse.json({ error: 'Email already on waitlist' }, { status: 400 });
     }
 
-    const result = await sql`
+    const { rows: insertRows } = await sql`
       INSERT INTO waitlist (email)
       VALUES (${email})
-      RETURNING id, created_at
+      RETURNING id
     `;
 
-    const userId = result[0].id;
+    const userId = insertRows[0].id;
     const position = userId;
     const referralCode = userId.toString(36).toUpperCase();
     const referralLink = `https://rich-money-app.vercel.app?ref=${referralCode}`;

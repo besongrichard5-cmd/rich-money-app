@@ -8,6 +8,8 @@ export default function Home() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [waitlistCount, setWaitlistCount] = useState<number>(247);
+  const [position, setPosition] = useState<number | null>(null);
+  const [referralLink, setReferralLink] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadCount() {
@@ -40,9 +42,12 @@ export default function Home() {
       });
 
       if (res.ok) {
+        const data = await res.json().catch(() => null);
         setStatus("success");
         setErrorMessage("");
         setEmail("");
+        if (data?.position && typeof data.position === 'number') setPosition(data.position);
+        if (data?.referralLink && typeof data.referralLink === 'string') setReferralLink(data.referralLink);
         setWaitlistCount((count) => count + 1);
       } else {
         const data = await res.json().catch(() => null);
@@ -173,7 +178,14 @@ export default function Home() {
               <div className="py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="w-20 h-20 bg-teal-50 text-[#008080] rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">🎉</div>
                 <h3 className="text-2xl font-bold text-[#1A1A1A] mb-3">You're in!</h3>
-                <p className="text-gray-600 text-lg">We'll email you at launch 🚀</p>
+                {position ? (
+                  <p className="text-gray-600 text-lg">Your position: <strong className="text-[#008080]">#{position}</strong></p>
+                ) : (
+                  <p className="text-gray-600 text-lg">We'll email you at launch 🚀</p>
+                )}
+                {referralLink && (
+                  <p className="text-sm text-gray-500 mt-3">Share to skip the line: <a href={referralLink} className="text-[#008080] underline">{referralLink}</a></p>
+                )}
               </div>
             ) : (
               <form onSubmit={handleWaitlistSubmit} className="flex flex-col gap-5">
