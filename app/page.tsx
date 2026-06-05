@@ -1,13 +1,31 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [waitlistCount, setWaitlistCount] = useState<number>(247);
+
+  useEffect(() => {
+    async function loadCount() {
+      try {
+        const res = await fetch('/api/waitlist');
+        if (res.ok) {
+          const data = await res.json();
+          if (typeof data.count === 'number') {
+            setWaitlistCount(data.count);
+          }
+        }
+      } catch (err) {
+        console.warn('Unable to load waitlist count', err);
+      }
+    }
+
+    loadCount();
+  }, []);
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +41,12 @@ export default function Home() {
 
       if (res.ok) {
         setStatus("success");
+        setErrorMessage("");
+        setEmail("");
+        setWaitlistCount((count) => count + 1);
       } else {
         const data = await res.json().catch(() => null);
-        setErrorMessage(data?.error || 'Unable to join waitlist.')
+        setErrorMessage(data?.error || 'Unable to join waitlist.');
         setStatus("error");
       }
     } catch (err) {
@@ -66,7 +87,7 @@ export default function Home() {
         </h1>
         
         <p className="relative z-10 text-lg sm:text-xl text-gray-100 mb-12 max-w-2xl leading-relaxed drop-shadow-[0_12px_24px_rgba(0,0,0,0.25)]">
-          P2P cross-border escrow built for Nigeria 🇳🇬 → Ghana 🇬🇭 → Cameroon 🇨🇲. Your funds stay locked until both sides confirm. No scam. No bank stress.
+          P2P cross-border escrow built for Nigeria 🇳🇬 → Ghana 🇬🇭 → Cameroon 🇨🇲. Your funds stay locked until both sides confirm. Escrow-protected. No bank stress.
         </p>
         
         <div className="relative z-10 flex flex-col items-center gap-4 w-full">
@@ -93,25 +114,24 @@ export default function Home() {
               <div className="text-4xl mb-6 bg-white/70 w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">🇳🇬</div>
               <h3 className="text-xl font-bold mb-3 text-[#111827] drop-shadow-sm">Send Naira, Cedis, CFA in Minutes</h3>
               <p className="text-gray-800 leading-relaxed font-medium">
-                Nigeria to Ghana to Cameroon. Naira ↔ Cedis ↔ XAF. No Aboki. No Western Union fees.
-              </p>
+              Instant P2P transfers across Nigeria, Ghana, and Cameroon. Convert Naira ↔ Cedis ↔ XAF without intermediaries or hidden fees. </p>
             </div>
 
             {/* Column 2 */}
             <div className="flex flex-col items-start p-8 rounded-3xl bg-white/85 backdrop-blur-md border border-white/30 hover:bg-white/95 hover:shadow-xl transition-all group">
               <div className="text-4xl mb-6 bg-white/70 w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">🔒</div>
-              <h3 className="text-xl font-bold mb-3 text-[#111827] drop-shadow-sm">Locked Escrow = Zero Scam</h3>
+              <h3 className="text-xl font-bold mb-3 text-[#111827] drop-shadow-sm">Secure Escrow Protection</h3>
               <p className="text-gray-800 leading-relaxed font-medium">
-                Money only moves when both tap Confirm. If one ghosts, funds return.
+                Funds are held in escrow until both parties confirm. If a transaction isn’t completed, your money is automatically returned.
               </p>
             </div>
 
             {/* Column 3 */}
             <div className="flex flex-col items-start p-8 rounded-3xl bg-white/85 backdrop-blur-md border border-white/30 hover:bg-white/95 hover:shadow-xl transition-all group">
               <div className="text-4xl mb-6 bg-white/70 w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">🌍</div>
-              <h3 className="text-xl font-bold mb-3 text-[#111827] drop-shadow-sm">Built in Lagos for West Africa</h3>
+              <h3 className="text-xl font-bold mb-3 text-[#111827] drop-shadow-sm">Built in Nigeria for West Africa</h3>
               <p className="text-gray-800 leading-relaxed font-medium">
-                We live the CFA/Naira/Cedis wahala daily. West Africa first.
+                We understand the FX challenges of CFA, Naira, and Cedis because we face them daily. Designed specifically for West African markets.
               </p>
             </div>
 
@@ -145,7 +165,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto px-6 flex flex-col items-center relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight text-white">Be First to Move CFA, Cedis & Naira</h2>
-            <p className="text-gray-200 text-lg md:text-xl font-medium">Join 247+ founders, traders, students waiting for launch</p>
+            <p className="text-gray-200 text-lg md:text-xl font-medium">Join {waitlistCount}+ founders, traders, students waiting for launch</p>
           </div>
           
           <div className="w-full max-w-xl bg-white rounded-3xl p-8 sm:p-12 shadow-2xl ring-1 ring-white/10 text-center">
@@ -196,9 +216,8 @@ export default function Home() {
             <span>RICH MONEY © 2026</span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="https://richmoney.vercel.app" className="text-gray-100 hover:text-white transition-colors">richmoney.vercel.app</a>
             <span className="hidden sm:inline opacity-30">•</span>
-            <span>Lagos, Nigeria</span>
+            <span> Nigeria</span>
           </div>
         </div>
       </footer>
