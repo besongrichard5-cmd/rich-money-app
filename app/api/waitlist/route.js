@@ -28,7 +28,37 @@ export async function POST(request) {
 
     const { rows: existing } = await sql`SELECT id FROM waitlist WHERE email = ${email}`;
     if (existing.length > 0) {
-      return NextResponse.json({ error: 'Email already on waitlist' }, { status: 400 });
+      // If the email already exists, return their existing position and attempt to resend the confirmation email.
+      const userId = existing[0].id;
+      const position = userId;
+      const referralCode = userId.toString(36).toUpperCase();
+      const referralLink = `https://rich-money-app.vercel.app?ref=${referralCode}`;
+      console.log('Email already on waitlist - resending confirmation to:', email, 'Position:', position);
+
+      try {
+        const emailResult = await resend.emails.send({
+          from: `${FROM_NAME} <${FROM_EMAIL}>`,
+          to: email,
+          subject: `You're #${position} on the Rich Money waitlist 🚀`,
+          text: `You're #${position} on the Rich Money waitlist! Visit: ${referralLink}`,
+          html: `
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#0a0a0a;color:#fff;">
+              <h1 style="color:#FFD700;text-align:center">Rich Money</h1>
+              <div style="background:#1a1a1a;padding:30px;border-radius:12px;border:1px solid #FFD700;">
+                <h2 style="color:#FFD700">You're in! 🎉</h2>
+                <p style="font-size:18px">Your position: <strong style="color:#FFD700;font-size:32px">#${position}</strong></p>
+                <p style="font-size:16px;line-height:1.6;">Skip the line: <a href="${referralLink}" style="color:#FFD700">${referralLink}</a></p>
+              </div>
+            </div>
+          `,
+        });
+
+        return NextResponse.json({ success: true, position, referralLink, resent: !!emailResult?.id });
+      } catch (err) {
+        console.error('Error resending confirmation:', err);
+        // Still return success to the client so the UI shows the user is on the list
+        return NextResponse.json({ success: true, position, referralLink, resent: false });
+      }
     }
 
     const { rows: insertRows } = await sql`

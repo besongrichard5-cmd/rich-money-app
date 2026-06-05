@@ -10,6 +10,7 @@ export default function Home() {
   const [waitlistCount, setWaitlistCount] = useState<number>(247);
   const [position, setPosition] = useState<number | null>(null);
   const [referralLink, setReferralLink] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState<boolean | null>(null);
 
   useEffect(() => {
     async function loadCount() {
@@ -48,6 +49,7 @@ export default function Home() {
         setEmail("");
         if (data?.position && typeof data.position === 'number') setPosition(data.position);
         if (data?.referralLink && typeof data.referralLink === 'string') setReferralLink(data.referralLink);
+        if (typeof data?.resent === 'boolean') setEmailSent(data.resent);
         setWaitlistCount((count) => count + 1);
       } else {
         const data = await res.json().catch(() => null);
@@ -185,6 +187,12 @@ export default function Home() {
                 )}
                 {referralLink && (
                   <p className="text-sm text-gray-500 mt-3">Share to skip the line: <a href={referralLink} className="text-[#008080] underline">{referralLink}</a></p>
+                )}
+                {emailSent === true && (
+                  <p className="text-sm text-green-600 mt-3">Confirmation email sent — check your inbox.</p>
+                )}
+                {emailSent === false && (
+                  <p className="text-sm text-yellow-600 mt-3">We couldn't send the confirmation email. Please check your email address or contact support.</p>
                 )}
               </div>
             ) : (
