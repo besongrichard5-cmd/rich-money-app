@@ -27,11 +27,11 @@ export default function Header() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden border-t border-gray-800 px-6 py-4 flex-col gap-4">
-          <Link href="/" onClick={() => setOpen(false)}>Home</Link>
-          <Link href="/about" onClick={() => setOpen(false)}>About</Link>
-          <Link href="/faq" onClick={() => setOpen(false)}>FAQ</Link>
-          <Link href="/signin" onClick={() => setOpen(false)}>Sign In</Link>
+        <div className="md:hidden border-t border-gray-800 px-6 py-4 flex flex-col gap-3 bg-[#0A0A0A]">
+          <Link href="/" className="text-white font-bold py-3 px-3 rounded-xl hover:bg-white/5 transition" onClick={() => setOpen(false)}>Home</Link>
+          <Link href="/about" className="text-white font-bold py-3 px-3 rounded-xl hover:bg-white/5 transition" onClick={() => setOpen(false)}>About</Link>
+          <Link href="/faq" className="text-white font-bold py-3 px-3 rounded-xl hover:bg-white/5 transition" onClick={() => setOpen(false)}>FAQ</Link>
+          <Link href="/signin" className="text-white font-bold py-3 px-3 rounded-xl hover:bg-white/5 transition" onClick={() => setOpen(false)}>Sign In</Link>
         </div>
       )}
     </header>
