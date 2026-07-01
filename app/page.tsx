@@ -65,7 +65,7 @@ export default function Home() {
   return (
     <main className="flex flex-col items-center w-full min-h-screen selection:bg-[#0FA8A3] selection:text-white relative">
       {/* HERO SECTION */}
-      <section className="w-full max-w-4xl mx-auto px-6 pt-28 pb-24 text-center flex flex-col items-center relative overflow-hidden">
+      <section className="w-full max-w-4xl mx-auto px-4 sm:px-6 pt-20 sm:pt-28 pb-20 sm:pb-24 text-center flex flex-col items-center relative overflow-hidden">
         <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
         <div className="relative z-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 text-teal-800 text-xs font-semibold mb-8 border border-teal-100 uppercase tracking-wider">
           <span className="relative flex h-2 w-2">
@@ -75,16 +75,16 @@ export default function Home() {
           Launching Soon in West Africa
         </div>
         
-        <h1 className="relative z-10 text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white mb-8 leading-[1.1] drop-shadow-[0_24px_50px_rgba(0,0,0,0.35)]">
+        <h1 className="relative z-10 text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-8 leading-[1.1] drop-shadow-[0_24px_50px_rgba(0,0,0,0.35)]">
           Money that moves <br className="hidden sm:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4EECDC] to-[#0FA8A3]">like Africans do</span>
         </h1>
         
-        <p className="relative z-10 text-lg sm:text-xl text-gray-100 mb-12 max-w-2xl leading-relaxed drop-shadow-[0_12px_24px_rgba(0,0,0,0.25)]">
+        <p className="relative z-10 text-base sm:text-lg md:text-xl text-gray-100 mb-10 sm:mb-12 max-w-xl sm:max-w-2xl leading-relaxed drop-shadow-[0_12px_24px_rgba(0,0,0,0.25)]">
           P2P cross-border escrow built for Nigeria 🇳🇬 → Ghana 🇬🇭 → Cameroon 🇨🇲. Your funds stay locked until both sides confirm. Escrow-protected. No bank stress.
         </p>
         
-        <div className="relative z-10 flex flex-col items-center gap-4 w-full">
+        <div className="relative z-10 flex flex-col items-center gap-4 w-full max-w-sm sm:max-w-none">
           <button 
             onClick={() => setWaitlistModalOpen(true)}
             className="w-full sm:w-auto bg-[#0FA8A3] text-white text-lg px-10 py-4 rounded-full font-bold hover:bg-teal-600 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ring-4 ring-teal-50 cursor-pointer"
@@ -96,8 +96,8 @@ export default function Home() {
       </section>
 
       {waitlistModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6">
-          <div className="w-full max-w-2xl rounded-[2rem] bg-white text-[#1A1A1A] shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[1.5rem] sm:rounded-[2rem] bg-white text-[#1A1A1A] shadow-2xl">
             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
               <div>
                 <p className="text-xs uppercase tracking-[0.35em] text-[#0FA8A3] font-semibold">Waitlist</p>
@@ -229,8 +229,8 @@ export default function Home() {
         
         <div className="max-w-4xl mx-auto px-6 flex flex-col items-center relative z-10">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight text-white">Be First to Move CFA, Cedis & Naira</h2>
-            <p className="text-gray-200 text-lg md:text-xl font-medium">Join {waitlistCount}+ founders, traders, students waiting for launch</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-6 tracking-tight text-white">Be First to Move CFA, Cedis & Naira</h2>
+            <p className="text-gray-200 text-base sm:text-lg md:text-xl font-medium">Join 255+ founders, traders, students waiting for launch</p>
           </div>
           
           <div className="w-full max-w-xl bg-white rounded-3xl p-8 sm:p-12 shadow-2xl ring-1 ring-white/10 text-center">
