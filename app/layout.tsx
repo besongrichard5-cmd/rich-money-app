@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Header from "./components/Header";
 import "./globals.css";
 
 const inter = Inter({
@@ -35,6 +36,7 @@ export default function RootLayout({
           <div className="absolute inset-0 bg-black/25"></div>
         </div>
         
+        <Header />
         {children}
       </body>
     </html>

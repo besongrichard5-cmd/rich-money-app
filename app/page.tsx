@@ -11,6 +11,7 @@ export default function Home() {
   const [position, setPosition] = useState<number | null>(null);
   const [referralLink, setReferralLink] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState<boolean | null>(null);
+  const [waitlistModalOpen, setWaitlistModalOpen] = useState(false);
 
   useEffect(() => {
     async function loadCount() {
@@ -63,22 +64,8 @@ export default function Home() {
   };
   return (
     <main className="flex flex-col items-center w-full min-h-screen selection:bg-[#0FA8A3] selection:text-white relative">
-      {/* HEADER / NAVIGATION */}
-      <header className="relative z-10 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Image src="/richmoney-logo.jpeg" alt="RICH MONEY Logo" width={40} height={40} className="rounded-full shadow-sm" priority />
-          <span className="font-extrabold text-xl text-[#0FA8A3] tracking-tight">RICH MONEY</span>
-        </div>
-        <button 
-          onClick={() => document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })}
-          className="bg-white border border-gray-200 text-[#1A1A1A] px-5 py-2.5 rounded-full font-medium hover:border-[#0FA8A3] hover:text-[#0FA8A3] transition-all shadow-sm text-sm cursor-pointer"
-        >
-          Join Waitlist
-        </button>
-      </header>
-
       {/* HERO SECTION */}
-      <section className="w-full max-w-4xl mx-auto px-6 pt-20 pb-24 text-center flex flex-col items-center relative overflow-hidden">
+      <section className="w-full max-w-4xl mx-auto px-6 pt-28 pb-24 text-center flex flex-col items-center relative overflow-hidden">
         <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
         <div className="relative z-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 text-teal-800 text-xs font-semibold mb-8 border border-teal-100 uppercase tracking-wider">
           <span className="relative flex h-2 w-2">
@@ -99,7 +86,7 @@ export default function Home() {
         
         <div className="relative z-10 flex flex-col items-center gap-4 w-full">
           <button 
-            onClick={() => document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => setWaitlistModalOpen(true)}
             className="w-full sm:w-auto bg-[#0FA8A3] text-white text-lg px-10 py-4 rounded-full font-bold hover:bg-teal-600 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ring-4 ring-teal-50 cursor-pointer"
           >
             Join Waitlist
@@ -107,6 +94,77 @@ export default function Home() {
           <p className="text-sm text-gray-500 font-medium mt-2">Free to join. Early users get 0% fees for 3 months</p>
         </div>
       </section>
+
+      {waitlistModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6">
+          <div className="w-full max-w-2xl rounded-[2rem] bg-white text-[#1A1A1A] shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-[#0FA8A3] font-semibold">Waitlist</p>
+                <h2 className="text-3xl font-bold mt-2">Join the launch list</h2>
+              </div>
+              <button
+                onClick={() => setWaitlistModalOpen(false)}
+                aria-label="Close modal"
+                className="text-gray-500 hover:text-gray-900 transition"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6 sm:p-8">
+              <p className="text-gray-600 mb-6 leading-relaxed">Be the first to move CFA, Cedis, and Naira with Rich Money. Join our waitlist and get launch access, early pricing, and priority updates.</p>
+              {status === "success" ? (
+                <div className="py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="w-20 h-20 bg-teal-50 text-[#008080] rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">🎉</div>
+                  <h3 className="text-2xl font-bold text-[#1A1A1A] mb-3">You're in!</h3>
+                  {position ? (
+                    <p className="text-gray-600 text-lg">Your position: <strong className="text-[#008080]">#{position}</strong></p>
+                  ) : (
+                    <p className="text-gray-600 text-lg">We'll email you at launch 🚀</p>
+                  )}
+                  {referralLink && (
+                    <p className="text-sm text-gray-500 mt-3">Share to skip the line: <a href={referralLink} className="text-[#008080] underline">{referralLink}</a></p>
+                  )}
+                  {emailSent === true && (
+                    <p className="text-sm text-green-600 mt-3">Confirmation email sent — check your inbox.</p>
+                  )}
+                  {emailSent === false && (
+                    <p className="text-sm text-yellow-600 mt-3">We couldn't send the confirmation email. Please check your email address or contact support.</p>
+                  )}
+                </div>
+              ) : (
+                <form onSubmit={handleWaitlistSubmit} className="space-y-4">
+                  <input
+                    type="email"
+                    placeholder="you@email.com"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={status === "loading"}
+                    className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-4 focus:ring-[#008080]/20 focus:border-[#008080] text-[#1A1A1A] text-lg disabled:opacity-50 transition-all placeholder:text-gray-400"
+                  />
+                  <button
+                    type="submit"
+                    disabled={status === "loading"}
+                    className="w-full bg-[#008080] text-white font-bold py-4 px-6 rounded-xl hover:bg-teal-700 transition-colors disabled:opacity-70 flex items-center justify-center min-h-[60px] text-lg shadow-md hover:shadow-lg"
+                  >
+                    {status === "loading" ? (
+                      <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    ) : (
+                      "Join Waitlist"
+                    )}
+                  </button>
+                  {status === "error" && (
+                    <p className="text-red-500 font-medium mt-1 animate-in fade-in">
+                      {errorMessage || 'Oops! Please try again.'}
+                    </p>
+                  )}
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 3 COLUMNS SECTION */}
       <section className="w-full py-24 border-y border-white/20 relative overflow-hidden">
